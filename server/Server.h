@@ -64,7 +64,7 @@ private:
     DWORD                   m_nFramesSinceUpdate;
 
     // Current Kinect
-    IKinectSensor*          m_pKinectSensor;
+    IKinectSensor*          m_pKinectSensor = nullptr;
     ICoordinateMapper*      m_pCoordinateMapper;
 
     // Body reader
@@ -82,6 +82,8 @@ private:
     ID2D1SolidColorBrush*   m_pBrushHandClosed;
     ID2D1SolidColorBrush*   m_pBrushHandOpen;
     ID2D1SolidColorBrush*   m_pBrushHandLasso;
+
+	bool					m_hasKinect = false;
 
 	char*					m_ip;
 	char					m_host[256];

@@ -174,6 +174,15 @@ int Server::Run(HINSTANCE hInstance, int nCmdShow){
 /// Main processing function
 /// </summary>
 void Server::Update(){
+
+	if(!m_hasKinect){
+		WCHAR szStatusMessage[128];
+		StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L"ERROR (no kinect connected?)    IP:%hs", m_ip);
+		SetStatusMessage(szStatusMessage, 1000, false);
+		printf("ASDASDASd\n");
+		return;
+	}
+
 	if (!m_pBodyFrameReader) {
 		return;
 	}
@@ -201,11 +210,7 @@ void Server::Update(){
             SafeRelease(ppBodies[i]);
         }
 	}
-	else {
-		WCHAR szStatusMessage[128];
-		StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L"ERROR (no kinect connected?)    IP:%hs", m_ip);
-		SetStatusMessage(szStatusMessage, 1000, false);
-	}
+	
 
     SafeRelease(pBodyFrame);
 }
@@ -287,6 +292,9 @@ HRESULT Server::InitializeDefaultSensor(){
     }
 
     if (m_pKinectSensor){
+
+		m_hasKinect = true;
+
         // Initialize the Kinect and get coordinate mapper and the body reader
         IBodyFrameSource* pBodyFrameSource = NULL;
 
@@ -424,7 +432,7 @@ void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
         }
 
         WCHAR szStatusMessage[128];
-        StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d    IP:%s", fps, (nTime - m_nStartTime), m_ip);
+        StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d    IP:%hs", fps, (nTime - m_nStartTime), m_ip);
 
         if (SetStatusMessage(szStatusMessage, 1000, false)){
             m_nLastCounter = qpcNow.QuadPart;

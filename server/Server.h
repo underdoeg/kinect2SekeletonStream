@@ -8,7 +8,7 @@
 
 #include "resource.h"
 
-class CBodyBasics
+class Server
 {
     static const int        cDepthWidth  = 512;
     static const int        cDepthHeight = 424;
@@ -17,12 +17,12 @@ public:
     /// <summary>
     /// Constructor
     /// </summary>
-    CBodyBasics();
+    Server();
 
     /// <summary>
     /// Destructor
     /// </summary>
-    ~CBodyBasics();
+    ~Server();
 
     /// <summary>
     /// Handles window messages, passes most to the class instance to handle

@@ -7,39 +7,31 @@
 #include "stdafx.h"
 #include <strsafe.h>
 #include "resource.h"
-#include "BodyBasics.h"
+#include "Server.h"
 
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
 static const float c_InferredBoneThickness = 1.0f;
 static const float c_HandSize = 30.0f;
 
-/// <summary>
-/// Entry point for the application
-/// </summary>
-/// <param name="hInstance">handle to the application instance</param>
-/// <param name="hPrevInstance">always 0</param>
-/// <param name="lpCmdLine">command line arguments</param>
-/// <param name="nCmdShow">whether to display minimized, maximized, or normally</param>
-/// <returns>status</returns>
-int APIENTRY wWinMain(    
+int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
-    _In_ LPWSTR lpCmdLine,
-    _In_ int nShowCmd
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR lpCmdLine,
+	_In_ int nShowCmd
 )
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
 
-    CBodyBasics application;
-    application.Run(hInstance, nShowCmd);
+	Server application;
+	application.Run(hInstance, nShowCmd);
 }
 
 /// <summary>
 /// Constructor
 /// </summary>
-CBodyBasics::CBodyBasics() :
+Server::Server() :
     m_hWnd(NULL),
     m_nStartTime(0),
     m_nLastCounter(0),
@@ -70,7 +62,7 @@ CBodyBasics::CBodyBasics() :
 /// <summary>
 /// Destructor
 /// </summary>
-CBodyBasics::~CBodyBasics()
+Server::~Server()
 {
     DiscardDirect2DResources();
 
@@ -84,8 +76,7 @@ CBodyBasics::~CBodyBasics()
     SafeRelease(m_pCoordinateMapper);
 
     // close the Kinect Sensor
-    if (m_pKinectSensor)
-    {
+    if (m_pKinectSensor){
         m_pKinectSensor->Close();
     }
 
@@ -97,8 +88,7 @@ CBodyBasics::~CBodyBasics()
 /// </summary>
 /// <param name="hInstance">handle to the application instance</param>
 /// <param name="nCmdShow">whether to display minimized, maximized, or normally</param>
-int CBodyBasics::Run(HINSTANCE hInstance, int nCmdShow)
-{
+int Server::Run(HINSTANCE hInstance, int nCmdShow){
     MSG       msg = {0};
     WNDCLASS  wc;
 
@@ -111,8 +101,7 @@ int CBodyBasics::Run(HINSTANCE hInstance, int nCmdShow)
     wc.lpfnWndProc   = DefDlgProcW;
     wc.lpszClassName = L"BodyBasicsAppDlgWndClass";
 
-    if (!RegisterClassW(&wc))
-    {
+    if (!RegisterClassW(&wc)){
         return 0;
     }
 
@@ -121,22 +110,19 @@ int CBodyBasics::Run(HINSTANCE hInstance, int nCmdShow)
         NULL,
         MAKEINTRESOURCE(IDD_APP),
         NULL,
-        (DLGPROC)CBodyBasics::MessageRouter, 
+        (DLGPROC)Server::MessageRouter, 
         reinterpret_cast<LPARAM>(this));
 
     // Show window
     ShowWindow(hWndApp, nCmdShow);
 
     // Main message loop
-    while (WM_QUIT != msg.message)
-    {
+    while (WM_QUIT != msg.message){
         Update();
 
-        while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
-        {
+        while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)){
             // If a dialog message will be taken care of by the dialog proc
-            if (hWndApp && IsDialogMessageW(hWndApp, &msg))
-            {
+            if (hWndApp && IsDialogMessageW(hWndApp, &msg)){
                 continue;
             }
 
@@ -151,10 +137,8 @@ int CBodyBasics::Run(HINSTANCE hInstance, int nCmdShow)
 /// <summary>
 /// Main processing function
 /// </summary>
-void CBodyBasics::Update()
-{
-    if (!m_pBodyFrameReader)
-    {
+void Server::Update(){
+    if (!m_pBodyFrameReader){
         return;
     }
 
@@ -162,26 +146,22 @@ void CBodyBasics::Update()
 
     HRESULT hr = m_pBodyFrameReader->AcquireLatestFrame(&pBodyFrame);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)){
         INT64 nTime = 0;
 
         hr = pBodyFrame->get_RelativeTime(&nTime);
 
         IBody* ppBodies[BODY_COUNT] = {0};
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)){
             hr = pBodyFrame->GetAndRefreshBodyData(_countof(ppBodies), ppBodies);
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)){
             ProcessBody(nTime, BODY_COUNT, ppBodies);
         }
 
-        for (int i = 0; i < _countof(ppBodies); ++i)
-        {
+        for (int i = 0; i < _countof(ppBodies); ++i){
             SafeRelease(ppBodies[i]);
         }
     }
@@ -197,22 +177,17 @@ void CBodyBasics::Update()
 /// <param name="wParam">message data</param>
 /// <param name="lParam">additional message data</param>
 /// <returns>result of message processing</returns>
-LRESULT CALLBACK CBodyBasics::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    CBodyBasics* pThis = NULL;
+LRESULT CALLBACK Server::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
+    Server* pThis = NULL;
     
-    if (WM_INITDIALOG == uMsg)
-    {
-        pThis = reinterpret_cast<CBodyBasics*>(lParam);
+    if (WM_INITDIALOG == uMsg){
+        pThis = reinterpret_cast<Server*>(lParam);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
-    }
-    else
-    {
-        pThis = reinterpret_cast<CBodyBasics*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }else{
+        pThis = reinterpret_cast<Server*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
     }
 
-    if (pThis)
-    {
+    if (pThis){
         return pThis->DlgProc(hWnd, uMsg, wParam, lParam);
     }
 
@@ -227,15 +202,12 @@ LRESULT CALLBACK CBodyBasics::MessageRouter(HWND hWnd, UINT uMsg, WPARAM wParam,
 /// <param name="wParam">message data</param>
 /// <param name="lParam">additional message data</param>
 /// <returns>result of message processing</returns>
-LRESULT CALLBACK CBodyBasics::DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK Server::DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     UNREFERENCED_PARAMETER(wParam);
     UNREFERENCED_PARAMETER(lParam);
 
-    switch (message)
-    {
-        case WM_INITDIALOG:
-        {
+    switch (message){
+        case WM_INITDIALOG:{
             // Bind application window handle
             m_hWnd = hWnd;
 
@@ -265,43 +237,36 @@ LRESULT CALLBACK CBodyBasics::DlgProc(HWND hWnd, UINT message, WPARAM wParam, LP
 /// Initializes the default Kinect sensor
 /// </summary>
 /// <returns>indicates success or failure</returns>
-HRESULT CBodyBasics::InitializeDefaultSensor()
-{
+HRESULT Server::InitializeDefaultSensor(){
     HRESULT hr;
 
     hr = GetDefaultKinectSensor(&m_pKinectSensor);
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)){
         return hr;
     }
 
-    if (m_pKinectSensor)
-    {
+    if (m_pKinectSensor){
         // Initialize the Kinect and get coordinate mapper and the body reader
         IBodyFrameSource* pBodyFrameSource = NULL;
 
         hr = m_pKinectSensor->Open();
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)){
             hr = m_pKinectSensor->get_CoordinateMapper(&m_pCoordinateMapper);
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)){
             hr = m_pKinectSensor->get_BodyFrameSource(&pBodyFrameSource);
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)){
             hr = pBodyFrameSource->OpenReader(&m_pBodyFrameReader);
         }
 
         SafeRelease(pBodyFrameSource);
     }
 
-    if (!m_pKinectSensor || FAILED(hr))
-    {
+    if (!m_pKinectSensor || FAILED(hr)){
         SetStatusMessage(L"No ready Kinect found!", 10000, true);
         return E_FAIL;
     }
@@ -315,14 +280,11 @@ HRESULT CBodyBasics::InitializeDefaultSensor()
 /// <param name="nBodyCount">body data count</param>
 /// <param name="ppBodies">body data in frame</param>
 /// </summary>
-void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
-{
-    if (m_hWnd)
-    {
+void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
+    if (m_hWnd){
         HRESULT hr = EnsureDirect2DResources();
 
-        if (SUCCEEDED(hr) && m_pRenderTarget && m_pCoordinateMapper)
-        {
+        if (SUCCEEDED(hr) && m_pRenderTarget && m_pCoordinateMapper){
             m_pRenderTarget->BeginDraw();
             m_pRenderTarget->Clear();
 
@@ -331,16 +293,13 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
             int width = rct.right;
             int height = rct.bottom;
 
-            for (int i = 0; i < nBodyCount; ++i)
-            {
+            for (int i = 0; i < nBodyCount; ++i){
                 IBody* pBody = ppBodies[i];
-                if (pBody)
-                {
+                if (pBody){
                     BOOLEAN bTracked = false;
                     hr = pBody->get_IsTracked(&bTracked);
 
-                    if (SUCCEEDED(hr) && bTracked)
-                    {
+                    if (SUCCEEDED(hr) && bTracked){
                         Joint joints[JointType_Count]; 
                         D2D1_POINT_2F jointPoints[JointType_Count];
                         HandState leftHandState = HandState_Unknown;
@@ -350,10 +309,8 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                         pBody->get_HandRightState(&rightHandState);
 
                         hr = pBody->GetJoints(_countof(joints), joints);
-                        if (SUCCEEDED(hr))
-                        {
-                            for (int j = 0; j < _countof(joints); ++j)
-                            {
+                        if (SUCCEEDED(hr)){
+                            for (int j = 0; j < _countof(joints); ++j){
                                 jointPoints[j] = BodyToScreen(joints[j].Position, width, height);
                             }
 
@@ -370,27 +327,22 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 
             // Device lost, need to recreate the render target
             // We'll dispose it now and retry drawing
-            if (D2DERR_RECREATE_TARGET == hr)
-            {
+            if (D2DERR_RECREATE_TARGET == hr){
                 hr = S_OK;
                 DiscardDirect2DResources();
             }
         }
 
-        if (!m_nStartTime)
-        {
+        if (!m_nStartTime){
             m_nStartTime = nTime;
         }
 
         double fps = 0.0;
 
         LARGE_INTEGER qpcNow = {0};
-        if (m_fFreq)
-        {
-            if (QueryPerformanceCounter(&qpcNow))
-            {
-                if (m_nLastCounter)
-                {
+        if (m_fFreq){
+            if (QueryPerformanceCounter(&qpcNow)){
+                if (m_nLastCounter){
                     m_nFramesSinceUpdate++;
                     fps = m_fFreq * m_nFramesSinceUpdate / double(qpcNow.QuadPart - m_nLastCounter);
                 }
@@ -400,8 +352,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
         WCHAR szStatusMessage[64];
         StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d", fps, (nTime - m_nStartTime));
 
-        if (SetStatusMessage(szStatusMessage, 1000, false))
-        {
+        if (SetStatusMessage(szStatusMessage, 1000, false)){
             m_nLastCounter = qpcNow.QuadPart;
             m_nFramesSinceUpdate = 0;
         }
@@ -414,12 +365,10 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 /// <param name="szMessage">message to display</param>
 /// <param name="showTimeMsec">time in milliseconds to ignore future status messages</param>
 /// <param name="bForce">force status update</param>
-bool CBodyBasics::SetStatusMessage(_In_z_ WCHAR* szMessage, DWORD nShowTimeMsec, bool bForce)
-{
+bool Server::SetStatusMessage(_In_z_ WCHAR* szMessage, DWORD nShowTimeMsec, bool bForce){
     INT64 now = GetTickCount64();
 
-    if (m_hWnd && (bForce || (m_nNextStatusTime <= now)))
-    {
+    if (m_hWnd && (bForce || (m_nNextStatusTime <= now))){
         SetDlgItemText(m_hWnd, IDC_STATUS, szMessage);
         m_nNextStatusTime = now + nShowTimeMsec;
 
@@ -433,12 +382,10 @@ bool CBodyBasics::SetStatusMessage(_In_z_ WCHAR* szMessage, DWORD nShowTimeMsec,
 /// Ensure necessary Direct2d resources are created
 /// </summary>
 /// <returns>S_OK if successful, otherwise an error code</returns>
-HRESULT CBodyBasics::EnsureDirect2DResources()
-{
+HRESULT Server::EnsureDirect2DResources(){
     HRESULT hr = S_OK;
 
-    if (m_pD2DFactory && !m_pRenderTarget)
-    {
+    if (m_pD2DFactory && !m_pRenderTarget){
         RECT rc;
         GetWindowRect(GetDlgItem(m_hWnd, IDC_VIDEOVIEW), &rc);  
 
@@ -456,8 +403,7 @@ HRESULT CBodyBasics::EnsureDirect2DResources()
             &m_pRenderTarget
         );
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)){
             SetStatusMessage(L"Couldn't create Direct2D render target!", 10000, true);
             return hr;
         }
@@ -480,7 +426,7 @@ HRESULT CBodyBasics::EnsureDirect2DResources()
 /// <summary>
 /// Dispose Direct2d resources 
 /// </summary>
-void CBodyBasics::DiscardDirect2DResources()
+void Server::DiscardDirect2DResources()
 {
     SafeRelease(m_pRenderTarget);
 
@@ -501,8 +447,7 @@ void CBodyBasics::DiscardDirect2DResources()
 /// <param name="width">width (in pixels) of output buffer</param>
 /// <param name="height">height (in pixels) of output buffer</param>
 /// <returns>point in screen-space</returns>
-D2D1_POINT_2F CBodyBasics::BodyToScreen(const CameraSpacePoint& bodyPoint, int width, int height)
-{
+D2D1_POINT_2F Server::BodyToScreen(const CameraSpacePoint& bodyPoint, int width, int height){
     // Calculate the body's position on the screen
     DepthSpacePoint depthPoint = {0};
     m_pCoordinateMapper->MapCameraPointToDepthSpace(bodyPoint, &depthPoint);
@@ -518,8 +463,7 @@ D2D1_POINT_2F CBodyBasics::BodyToScreen(const CameraSpacePoint& bodyPoint, int w
 /// </summary>
 /// <param name="pJoints">joint data</param>
 /// <param name="pJointPoints">joint positions converted to screen space</param>
-void CBodyBasics::DrawBody(const Joint* pJoints, const D2D1_POINT_2F* pJointPoints)
-{
+void Server::DrawBody(const Joint* pJoints, const D2D1_POINT_2F* pJointPoints){
     // Draw the bones
 
     // Torso
@@ -557,16 +501,12 @@ void CBodyBasics::DrawBody(const Joint* pJoints, const D2D1_POINT_2F* pJointPoin
     DrawBone(pJoints, pJointPoints, JointType_AnkleLeft, JointType_FootLeft);
 
     // Draw the joints
-    for (int i = 0; i < JointType_Count; ++i)
-    {
+    for (int i = 0; i < JointType_Count; ++i){
         D2D1_ELLIPSE ellipse = D2D1::Ellipse(pJointPoints[i], c_JointThickness, c_JointThickness);
 
-        if (pJoints[i].TrackingState == TrackingState_Inferred)
-        {
+        if (pJoints[i].TrackingState == TrackingState_Inferred){
             m_pRenderTarget->FillEllipse(ellipse, m_pBrushJointInferred);
-        }
-        else if (pJoints[i].TrackingState == TrackingState_Tracked)
-        {
+        }else if (pJoints[i].TrackingState == TrackingState_Tracked){
             m_pRenderTarget->FillEllipse(ellipse, m_pBrushJointTracked);
         }
     }
@@ -580,30 +520,24 @@ void CBodyBasics::DrawBody(const Joint* pJoints, const D2D1_POINT_2F* pJointPoin
 /// <param name="pJointPoints">joint positions converted to screen space</param>
 /// <param name="joint0">one joint of the bone to draw</param>
 /// <param name="joint1">other joint of the bone to draw</param>
-void CBodyBasics::DrawBone(const Joint* pJoints, const D2D1_POINT_2F* pJointPoints, JointType joint0, JointType joint1)
-{
+void Server::DrawBone(const Joint* pJoints, const D2D1_POINT_2F* pJointPoints, JointType joint0, JointType joint1){
     TrackingState joint0State = pJoints[joint0].TrackingState;
     TrackingState joint1State = pJoints[joint1].TrackingState;
 
     // If we can't find either of these joints, exit
-    if ((joint0State == TrackingState_NotTracked) || (joint1State == TrackingState_NotTracked))
-    {
+    if ((joint0State == TrackingState_NotTracked) || (joint1State == TrackingState_NotTracked)){
         return;
     }
 
     // Don't draw if both points are inferred
-    if ((joint0State == TrackingState_Inferred) && (joint1State == TrackingState_Inferred))
-    {
+    if ((joint0State == TrackingState_Inferred) && (joint1State == TrackingState_Inferred)){
         return;
     }
 
     // We assume all drawn bones are inferred unless BOTH joints are tracked
-    if ((joint0State == TrackingState_Tracked) && (joint1State == TrackingState_Tracked))
-    {
+    if ((joint0State == TrackingState_Tracked) && (joint1State == TrackingState_Tracked)){
         m_pRenderTarget->DrawLine(pJointPoints[joint0], pJointPoints[joint1], m_pBrushBoneTracked, c_TrackedBoneThickness);
-    }
-    else
-    {
+    }else{
         m_pRenderTarget->DrawLine(pJointPoints[joint0], pJointPoints[joint1], m_pBrushBoneInferred, c_InferredBoneThickness);
     }
 }
@@ -613,12 +547,10 @@ void CBodyBasics::DrawBone(const Joint* pJoints, const D2D1_POINT_2F* pJointPoin
 /// </summary>
 /// <param name="handState">state of the hand</param>
 /// <param name="handPosition">position of the hand</param>
-void CBodyBasics::DrawHand(HandState handState, const D2D1_POINT_2F& handPosition)
-{
+void Server::DrawHand(HandState handState, const D2D1_POINT_2F& handPosition){
     D2D1_ELLIPSE ellipse = D2D1::Ellipse(handPosition, c_HandSize, c_HandSize);
 
-    switch (handState)
-    {
+    switch (handState){
         case HandState_Closed:
             m_pRenderTarget->FillEllipse(ellipse, m_pBrushHandClosed);
             break;

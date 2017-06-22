@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BodyBasics.cpp" />
+    <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BodyBasics.rc" />
+    <ResourceCompile Include="SkeletonStreamServer.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BodyBasics.h" />
+    <ClInclude Include="Server.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

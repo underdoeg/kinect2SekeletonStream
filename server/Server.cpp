@@ -174,9 +174,9 @@ int Server::Run(HINSTANCE hInstance, int nCmdShow){
 /// Main processing function
 /// </summary>
 void Server::Update(){
-    if (!m_pBodyFrameReader){
-        return;
-    }
+	if (!m_pBodyFrameReader) {
+		return;
+	}
 
     IBodyFrame* pBodyFrame = NULL;
 
@@ -200,7 +200,12 @@ void Server::Update(){
         for (int i = 0; i < _countof(ppBodies); ++i){
             SafeRelease(ppBodies[i]);
         }
-    }
+	}
+	else {
+		WCHAR szStatusMessage[128];
+		StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L"ERROR (no kinect connected?)    IP:%hs", m_ip);
+		SetStatusMessage(szStatusMessage, 1000, false);
+	}
 
     SafeRelease(pBodyFrame);
 }

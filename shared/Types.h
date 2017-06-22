@@ -36,7 +36,7 @@ namespace kinectStream {
 
 	struct Joint {
 		glm::quat rotation;
-		glm::vec3 offset;
+		glm::vec3 position;
 	};
 
 	struct Skeleton {

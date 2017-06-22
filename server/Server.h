@@ -83,7 +83,7 @@ private:
     ID2D1SolidColorBrush*   m_pBrushHandOpen;
     ID2D1SolidColorBrush*   m_pBrushHandLasso;
 
-	char					m_ip[256];
+	char*					m_ip;
 	char					m_host[256];
 
 	Sender					m_sender;

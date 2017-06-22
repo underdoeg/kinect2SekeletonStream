@@ -144,7 +144,8 @@ int Server::Run(HINSTANCE hInstance, int nCmdShow){
 	DNS_STATUS statsus = DnsQuery(wtext, DNS_TYPE_A, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);
 	IN_ADDR ipaddr;
 	ipaddr.S_un.S_addr = (pDnsRecord->Data.A.IpAddress);
-	printf("The IP address of the host %s is %s \n", m_host, inet_ntoa(ipaddr));
+	m_ip = inet_ntoa(ipaddr);
+	printf("The IP address of the host %s is %s \n", m_host, m_ip);
 
 	//DnsRecordListFree(&pDnsRecord, DnsFreeRecordList);
 
@@ -418,7 +419,7 @@ void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
         }
 
         WCHAR szStatusMessage[128];
-        StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d		IP:", fps, (nTime - m_nStartTime), m_ip);
+        StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d    IP:%s", fps, (nTime - m_nStartTime), m_ip);
 
         if (SetStatusMessage(szStatusMessage, 1000, false)){
             m_nLastCounter = qpcNow.QuadPart;

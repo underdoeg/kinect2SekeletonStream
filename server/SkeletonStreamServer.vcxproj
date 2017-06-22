@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\config.h" />
+    <ClInclude Include="..\shared\Types.h" />
     <ClInclude Include="Sender.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="resource.h" />
@@ -181,6 +182,7 @@
     <Import Project="packages\cppzmq.4.2.1\build\native\cppzmq.targets" Condition="Exists('packages\cppzmq.4.2.1\build\native\cppzmq.targets')" />
     <Import Project="packages\libzmq.mtkrepack.redist.4.2.1\build\native\libzmq.mtkrepack.redist.targets" Condition="Exists('packages\libzmq.mtkrepack.redist.4.2.1\build\native\libzmq.mtkrepack.redist.targets')" />
     <Import Project="packages\libzmq.mtkrepack.4.2.1\build\native\libzmq.mtkrepack.targets" Condition="Exists('packages\libzmq.mtkrepack.4.2.1\build\native\libzmq.mtkrepack.targets')" />
+    <Import Project="packages\glm.0.9.8.4\build\native\glm.targets" Condition="Exists('packages\glm.0.9.8.4\build\native\glm.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -189,5 +191,6 @@
     <Error Condition="!Exists('packages\cppzmq.4.2.1\build\native\cppzmq.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\cppzmq.4.2.1\build\native\cppzmq.targets'))" />
     <Error Condition="!Exists('packages\libzmq.mtkrepack.redist.4.2.1\build\native\libzmq.mtkrepack.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libzmq.mtkrepack.redist.4.2.1\build\native\libzmq.mtkrepack.redist.targets'))" />
     <Error Condition="!Exists('packages\libzmq.mtkrepack.4.2.1\build\native\libzmq.mtkrepack.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libzmq.mtkrepack.4.2.1\build\native\libzmq.mtkrepack.targets'))" />
+    <Error Condition="!Exists('packages\glm.0.9.8.4\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.8.4\build\native\glm.targets'))" />
   </Target>
 </Project>

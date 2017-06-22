@@ -6,10 +6,14 @@
 
 #pragma once
 
+#include <vector>
+#include "Types.h"
+
 #include "resource.h"
 
-class Server
-{
+#include "Sender.h"
+
+class Server{
     static const int        cDepthWidth  = 512;
     static const int        cDepthHeight = 424;
 
@@ -79,8 +83,10 @@ private:
     ID2D1SolidColorBrush*   m_pBrushHandOpen;
     ID2D1SolidColorBrush*   m_pBrushHandLasso;
 
-	char		m_ip[256];
-	char		m_host[256];
+	char					m_ip[256];
+	char					m_host[256];
+
+	Sender					m_sender;
 
     /// <summary>
     /// Main processing function

@@ -316,6 +316,39 @@ HRESULT Server::InitializeDefaultSensor(){
 /// <param name="ppBodies">body data in frame</param>
 /// </summary>
 void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
+
+	// send bodies
+	std::vector<kinectStream::Skeleton> skeletons(nBodyCount);
+
+	for (unsigned int i = 0; i < nBodyCount; i++) {
+		auto body = ppBodies[i];
+		if(body){
+			BOOLEAN tracked = false;
+			auto res = body->get_IsTracked(&tracked);
+			if (SUCCEEDED(res) && tracked) {
+				HandState leftHandState = HandState_Unknown;
+				HandState rightHandState = HandState_Unknown;
+
+				body->get_HandLeftState(&leftHandState);
+				body->get_HandRightState(&rightHandState);
+
+				kinectStream::Skeleton& skel = skeletons[i];
+				body->get_TrackingId(&skel.id);
+
+				Joint joints[JointType_Count];
+				res = body->GetJoints(_countof(joints), joints);
+				if (SUCCEEDED(res)) {
+					for (int j = 0; j < _countof(joints); ++j) {
+						auto joint = joints[j];
+						skel.joints[j].position = {joint.Position.X, joint.Position.Y, joint.Position.Z};
+					}
+				}
+			}
+		}
+	}
+
+	m_sender.setSkeletons(skeletons);
+
     if (m_hWnd){
         HRESULT hr = EnsureDirect2DResources();
 

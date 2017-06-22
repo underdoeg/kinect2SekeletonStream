@@ -1,3 +1,7 @@
 #pragma once
 
-constexpr int broadcastPort = 5566;
+namespace kinectStream {
+
+	constexpr int broadcastPort = 5566;
+
+}

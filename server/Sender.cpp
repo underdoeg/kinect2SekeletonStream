@@ -1,4 +1,6 @@
 #include "Sender.h"
+#include "config.h"
+
 #include <iostream>
 
 Sender::Sender(){
@@ -7,7 +9,7 @@ Sender::Sender(){
 
 	thread = std::thread([&] {
 
-		auto protocolPublisher = "tcp://*:5566";
+		auto protocolPublisher = "tcp://*:"+std::to_string(broadcastPort);
 
 		zmq::context_t context(1);
 		zmq::socket_t socketPublisher(context, ZMQ_XPUB);

@@ -3,7 +3,8 @@
 //     Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
 //------------------------------------------------------------------------------
-
+#include <Winsock2.h>
+#include <WinDNS.h>
 #include "stdafx.h"
 #include <strsafe.h>
 #include "resource.h"
@@ -27,6 +28,21 @@ int APIENTRY wWinMain(
 	Server application;
 	application.Run(hInstance, nShowCmd);
 }
+
+int main() {
+
+	// Calling the wWinMain function to start the GUI program
+	// Parameters:
+	// GetModuleHandle(NULL) - To get a handle to the current instance
+	// NULL - Previous instance is not needed
+	// NULL - Command line parameters are not needed
+	// 1 - To show the window normally
+	wWinMain(GetModuleHandle(NULL), NULL, NULL, 1);
+
+	system("pause");
+	return 0;
+}
+
 
 /// <summary>
 /// Constructor
@@ -112,6 +128,25 @@ int Server::Run(HINSTANCE hInstance, int nCmdShow){
         NULL,
         (DLGPROC)Server::MessageRouter, 
         reinterpret_cast<LPARAM>(this));
+
+	// get host & IP
+	WSADATA wsa_Data;
+
+	int wsa_ReturnCode = WSAStartup(0x101, &wsa_Data);
+
+	gethostname(m_host, 256);
+	PDNS_RECORD pDnsRecord;
+
+	wchar_t wtext[256];
+	mbstowcs(wtext, m_host, strlen(m_host) + 1);//Plus null
+	LPWSTR ptr = wtext;
+
+	DNS_STATUS statsus = DnsQuery(wtext, DNS_TYPE_A, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);
+	IN_ADDR ipaddr;
+	ipaddr.S_un.S_addr = (pDnsRecord->Data.A.IpAddress);
+	printf("The IP address of the host %s is %s \n", m_host, inet_ntoa(ipaddr));
+
+	//DnsRecordListFree(&pDnsRecord, DnsFreeRecordList);
 
     // Show window
     ShowWindow(hWndApp, nCmdShow);
@@ -349,8 +384,8 @@ void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
             }
         }
 
-        WCHAR szStatusMessage[64];
-        StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d", fps, (nTime - m_nStartTime));
+        WCHAR szStatusMessage[128];
+        StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L" FPS = %0.2f    Time = %I64d		IP:", fps, (nTime - m_nStartTime), m_ip);
 
         if (SetStatusMessage(szStatusMessage, 1000, false)){
             m_nLastCounter = qpcNow.QuadPart;

@@ -2,6 +2,6 @@
 
 namespace kinectStream {
 
-	constexpr int broadcastPort = 5566;
+	constexpr int broadcastPort = 50566;
 
 }

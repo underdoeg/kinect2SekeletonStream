@@ -16,6 +16,9 @@ Sender::Sender(){
 		zmq::context_t context(1);
 		zmq::socket_t socketPublisher(context, ZMQ_XPUB);
 		try {
+
+			socketPublisher.bind(protocolPublisher);
+
 			while (bKeepOnRunning) {
 				zmq::message_t in;
 

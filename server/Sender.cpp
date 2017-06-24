@@ -24,11 +24,10 @@ Sender::Sender(){
 
 				// check for new subscribers
 				while (socketPublisher.recv(&in, ZMQ_DONTWAIT)) {
-					std::cout << "New Sender client connected";
+					std::cout << "New Sender client connected" << std::endl;
 				}
 
 				mutex.lock();
-				//auto skeletonsCopy = skeletons;
 				size_t totalBytes = skeletons.size() * sizeof(Skeleton);
 				std::vector<uint8_t> data(totalBytes + 1);
 				data[0] = skeletons.size();

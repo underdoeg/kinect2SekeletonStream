@@ -332,7 +332,7 @@ HRESULT Server::InitializeDefaultSensor(){
 void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
 
 	// send bodies
-	std::vector<kinectStream::Skeleton> skeletons(nBodyCount);
+	std::vector<kinectStream::Skeleton> skeletons;
 
 	for (unsigned int i = 0; i < nBodyCount; i++) {
 		auto body = ppBodies[i];
@@ -340,22 +340,31 @@ void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
 			BOOLEAN tracked = false;
 			auto res = body->get_IsTracked(&tracked);
 			if (SUCCEEDED(res) && tracked) {
+				// hand states
 				HandState leftHandState = HandState_Unknown;
 				HandState rightHandState = HandState_Unknown;
 
 				body->get_HandLeftState(&leftHandState);
 				body->get_HandRightState(&rightHandState);
 
-				kinectStream::Skeleton& skel = skeletons[i];
+				kinectStream::Skeleton skel; // = skeletons[i];
 				body->get_TrackingId(&skel.id);
-
+				
+				// positions
 				Joint joints[JointType_Count];
 				res = body->GetJoints(_countof(joints), joints);
+
+				// orientations
+				JointOrientation orientations[JointType_Count];
+				res = body->GetJointOrientations(_countof(orientations), orientations);
 				if (SUCCEEDED(res)) {
 					for (int j = 0; j < _countof(joints); ++j) {
 						auto joint = joints[j];
-						skel.joints[j].position = {joint.Position.X, joint.Position.Y, joint.Position.Z};
+						auto or = orientations[j].Orientation;
+						skel.joints[joint.JointType].position = {joint.Position.X, joint.Position.Y, joint.Position.Z};
+						skel.joints[joint.JointType].orientation = glm::quat(or.w, or.x, or.y, or.z);
 					}
+					skeletons.push_back(skel);
 				}
 			}
 		}

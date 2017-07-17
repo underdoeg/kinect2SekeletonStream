@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="KinectJointFilter.cpp" />
     <ClCompile Include="Sender.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
@@ -31,6 +32,7 @@
   <ItemGroup>
     <ClInclude Include="..\shared\config.h" />
     <ClInclude Include="..\shared\Types.h" />
+    <ClInclude Include="KinectJointFilter.h" />
     <ClInclude Include="Sender.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="resource.h" />

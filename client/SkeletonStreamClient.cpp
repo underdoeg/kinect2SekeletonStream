@@ -55,7 +55,7 @@ unsigned SkeletonStreamClient::getNumSkeletons(){
 
 Joint SkeletonStreamClient::getJoint(JointID joint, unsigned skeletonIndex){
 	assert(getNumSkeletons() > skeletonIndex && "has no Skeleton");
-	return getSkeletonList()[skeletonIndex].joints[skeletonIndex];
+	return getSkeletonList()[skeletonIndex].joints[static_cast<unsigned short>(joint)];
 }
 
 glm::vec3 SkeletonStreamClient::getJointPosition(JointID joint, unsigned skeletonIndex){

@@ -3,7 +3,10 @@
 #include <zmq.hpp>
 #include <iostream>
 
-SkeletonStreamClient::SkeletonStreamClient(const std::string &serverIp){
+SkeletonStreamClient::SkeletonStreamClient(){
+}
+
+void SkeletonStreamClient::initConnection(const std::string& serverIp){
 	bRunThread = true;
 
 	thread = std::thread([&, serverIp]{
@@ -69,3 +72,5 @@ glm::quat SkeletonStreamClient::getJointOrientation(JointID joint, unsigned skel
 const std::vector<Skeleton> SkeletonStreamClient::getSkeletonList(){
 	return skeletons;
 }
+
+

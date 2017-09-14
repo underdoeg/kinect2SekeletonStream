@@ -13,9 +13,10 @@ using namespace kinectStream;
 
 class SkeletonStreamClient{
 public:
-	SkeletonStreamClient(const std::string& serverIp);
+	SkeletonStreamClient();
 	~SkeletonStreamClient();
 
+	void initConnection(const std::string& serverIp);
 	void process();
 	bool hasSkeleton();
 	unsigned getNumSkeletons();
@@ -23,6 +24,8 @@ public:
 	glm::vec3 getJointPosition(JointID joint, unsigned skeletonIndex=0);
 	glm::quat getJointOrientation(JointID joint, unsigned skeletonIndex=0);
 	const std::vector<kinectStream::Skeleton> getSkeletonList();
+
+
 private:
 	std::vector<kinectStream::Skeleton> skeletons, skeletonsThread;
 

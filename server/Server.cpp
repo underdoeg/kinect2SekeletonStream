@@ -152,6 +152,17 @@ int Server::Run(HINSTANCE hInstance, int nCmdShow){
     // Show window
     ShowWindow(hWndApp, nCmdShow);
 
+	// init filter
+	for (int count = 0; count < BODY_COUNT; count++) {
+		float smoothing = 0.25f;          // [0..1], lower values closer to raw data
+		float correction = 0.25f;         // [0..1], lower values slower to correct towards the raw data
+		float prediction = 0.25f;         // [0..n], the number of frames to predict into the future
+		float jitterRadius = 0.03f;       // The radius in meters for jitter reduction
+		float maxDeviationRadius = 0.05f; // The maximum radius in meters that filtered positions are allowed to deviate from raw data
+
+		filter[count].Init(smoothing, correction, prediction, jitterRadius, maxDeviationRadius);
+	}
+
     // Main message loop
     while (WM_QUIT != msg.message){
         Update();
@@ -179,7 +190,7 @@ void Server::Update(){
 		WCHAR szStatusMessage[128];
 		StringCchPrintf(szStatusMessage, _countof(szStatusMessage), L"ERROR (no kinect connected?)    IP:%hs", m_ip);
 		SetStatusMessage(szStatusMessage, 1000, false);
-		printf("ASDASDASd\n");
+		//printf("ASDASDASd\n");
 		return;
 	}
 
@@ -203,6 +214,7 @@ void Server::Update(){
         }
 
         if (SUCCEEDED(hr)){
+
             ProcessBody(nTime, BODY_COUNT, ppBodies);
         }
 
@@ -357,11 +369,30 @@ void Server::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies){
 				// orientations
 				JointOrientation orientations[JointType_Count];
 				res = body->GetJointOrientations(_countof(orientations), orientations);
+
+
 				if (SUCCEEDED(res)) {
+
+					//filter 
+					filter[i].Update(joints);
+					const DirectX::XMVECTOR* vec = filter[i].GetFilteredJoints();
+					for (int type = 0; type < JointType::JointType_Count; type++) {
+						float x = 0.0f, y = 0.0f, z = 0.0f;
+						DirectX::XMVectorGetXPtr(&x, vec[type]);
+						DirectX::XMVectorGetYPtr(&y, vec[type]);
+						DirectX::XMVectorGetZPtr(&z, vec[type]);
+
+						auto joint = joints[type];
+						skel.joints[type].position = {x, y, z };
+					}
+					//
+
 					for (int j = 0; j < _countof(joints); ++j) {
 						auto joint = joints[j];
+						//auto or = orientations[j].Orientation;
 						auto or = orientations[j].Orientation;
-						skel.joints[joint.JointType].position = {joint.Position.X, joint.Position.Y, joint.Position.Z};
+
+						//skel.joints[joint.JointType].position = {joint.Position.X, joint.Position.Y, joint.Position.Z};
 						skel.joints[joint.JointType].orientation = glm::quat(or.w, or.x, or.y, or.z);
 					}
 					skeletons.push_back(skel);

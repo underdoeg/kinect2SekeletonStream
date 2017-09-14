@@ -10,6 +10,7 @@
 #include "Types.h"
 
 #include "resource.h"
+#include "KinectJointFilter.h"
 
 #include "Sender.h"
 
@@ -87,6 +88,9 @@ private:
 
 	char*					m_ip;
 	char					m_host[256];
+
+	///
+	KinectJointFilter::FilterDoubleExponential filter[BODY_COUNT];
 
 	Sender					m_sender;
 

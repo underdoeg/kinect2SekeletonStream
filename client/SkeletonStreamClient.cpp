@@ -3,6 +3,8 @@
 #include <zmq.hpp>
 #include <iostream>
 
+using namespace kinectStream;
+
 SkeletonStreamClient::SkeletonStreamClient(const std::string& serverIp){
 	if(!serverIp.empty()) initConnection(serverIp);
 }

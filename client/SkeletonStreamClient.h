@@ -9,7 +9,7 @@
 
 #include "Types.h"
 
-using namespace kinectStream;
+namespace kinectStream{
 
 class SkeletonStreamClient{
 public:
@@ -34,4 +34,5 @@ private:
 	std::mutex mutex;
 };
 
+}
 #endif // SKELETONSTREAMCLIENT_H

@@ -3,7 +3,8 @@
 #include <zmq.hpp>
 #include <iostream>
 
-SkeletonStreamClient::SkeletonStreamClient(){
+SkeletonStreamClient::SkeletonStreamClient(const std::string& serverIp){
+	if(!serverIp.empty()) initConnection(serverIp);
 }
 
 void SkeletonStreamClient::initConnection(const std::string& serverIp){

@@ -13,7 +13,7 @@ using namespace kinectStream;
 
 class SkeletonStreamClient{
 public:
-	SkeletonStreamClient();
+	SkeletonStreamClient(const std::string& serverIp = "");
 	~SkeletonStreamClient();
 
 	void initConnection(const std::string& serverIp);

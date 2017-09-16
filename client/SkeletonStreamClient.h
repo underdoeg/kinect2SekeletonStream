@@ -9,29 +9,30 @@
 
 #include "Types.h"
 
-using namespace kinectStream;
+namespace kinectStream{
 
-class SkeletonStreamClient{
-public:
-	SkeletonStreamClient();
-	~SkeletonStreamClient();
+	class SkeletonStreamClient{
+	public:
+		SkeletonStreamClient();
+		~SkeletonStreamClient();
 
-	void initConnection(const std::string& serverIp);
-	void process();
-	bool hasSkeleton();
-	unsigned getNumSkeletons();
-	Joint getJoint(JointID joint, unsigned skeletonIndex=0);
-	glm::vec3 getJointPosition(JointID joint, unsigned skeletonIndex=0);
-	glm::quat getJointOrientation(JointID joint, unsigned skeletonIndex=0);
-	const std::vector<kinectStream::Skeleton> getSkeletonList();
+		void initConnection(const std::string &serverIp);
+		void process();
+		bool hasSkeleton();
+		unsigned getNumSkeletons();
+		Joint getJoint(JointID joint, unsigned skeletonIndex = 0);
+		glm::vec3 getJointPosition(JointID joint, unsigned skeletonIndex = 0);
+		glm::quat getJointOrientation(JointID joint, unsigned skeletonIndex = 0);
+		const std::vector<kinectStream::Skeleton> getSkeletonList();
 
 
-private:
-	std::vector<kinectStream::Skeleton> skeletons, skeletonsThread;
+	private:
+		std::vector<kinectStream::Skeleton> skeletons, skeletonsThread;
 
-	std::thread thread;
-	std::atomic_bool bRunThread;
-	std::mutex mutex;
-};
+		std::thread thread;
+		std::atomic_bool bRunThread;
+		std::mutex mutex;
+	};
 
+}
 #endif // SKELETONSTREAMCLIENT_H

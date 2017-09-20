@@ -76,4 +76,18 @@ const std::vector<Skeleton> SkeletonStreamClient::getSkeletonList(){
 	return skeletons;
 }
 
+unsigned SkeletonStreamClient::getSkeletonClosestXZ(float x, float z){
+	unsigned ret = 0;
+	float dist = std::numeric_limits<float>::max();
+	for(unsigned i=0; i<getNumSkeletons(); i++){
+		auto p = getJointPosition(JointID::SpineBase, i);
+		auto d = glm::distance(glm::vec2{x, z}, glm::vec2{p.x, p.z});
+		if(d < dist){
+			dist = d;
+			ret = i;
+		}
+	}
+	return ret;
+}
+
 

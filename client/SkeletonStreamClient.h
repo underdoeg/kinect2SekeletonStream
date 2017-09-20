@@ -20,6 +20,7 @@ public:
 	void process();
 	bool hasSkeleton();
 	unsigned getNumSkeletons();
+	unsigned getSkeletonClosestXZ(float x, float z);
 	Joint getJoint(JointID joint, unsigned skeletonIndex=0);
 	glm::vec3 getJointPosition(JointID joint, unsigned skeletonIndex=0);
 	glm::quat getJointOrientation(JointID joint, unsigned skeletonIndex=0);
